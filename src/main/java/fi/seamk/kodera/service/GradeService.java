@@ -39,7 +39,7 @@ public class GradeService {
     public Grade gradeSubmission(Long submissionId) throws Exception {
         Optional<Submission> submissionOpt = submissionRepository.findById(submissionId);
         if (!submissionOpt.isPresent()) {
-            throw new RuntimeException("Submission not found");
+            throw new IllegalArgumentException("Submission not found");
         }
 
         Optional<Grade> existingGradeOpt = gradeRepository.findBySubmissionId(submissionId);
@@ -47,7 +47,7 @@ public class GradeService {
         Submission submission = submissionOpt.get();
         Optional<Assignment> assignmentOpt = assignmentRepository.findById(submission.getAssignmentId());
         if (!assignmentOpt.isPresent()) {
-            throw new RuntimeException("Assignment not found");
+            throw new IllegalArgumentException("Assignment not found");
         }
         
         Assignment assignment = assignmentOpt.get();
