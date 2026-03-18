@@ -1,0 +1,51 @@
+# Docker Compose for production deployment
+# This file is used on the CSC cPouta server
+# Use: docker compose -f compose-prod.yml up -d
+
+services:
+  # MariaDB database for production
+  mariadb:
+    image: mariadb:11.2
+    container_name: kodera-mariadb-prod
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-changeme_rootpass}
+      MARIADB_DATABASE: kodera_prod
+      MARIADB_USER: ${DB_USERNAME:-produser}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-changeme_prodpass}
+    volumes:
+      - mariadb_prod_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - kodera-network
+    restart: always
+
+  # Spring Boot application (pulled from Docker Hub)
+  app:
+    image: ${DOCKER_USERNAME}/kodera:latest
+    container_name: kodera-app-prod
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_USERNAME: ${DB_USERNAME:-produser}
+      DB_PASSWORD: ${DB_PASSWORD:-changeme_prodpass}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-1.5-flash}
+    ports:
+      - "8080:8080"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - kodera-network
+    restart: always
+
+volumes:
+  mariadb_prod_data:
+    driver: local
+
+networks:
+  kodera-network:
+    driver: bridge

@@ -1,0 +1,28 @@
+# Test profile - for automated testing with in-memory database
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+  
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: create-drop
+  
+  h2:
+    console:
+      enabled: false
+
+server:
+  port: 8080
+
+logging:
+  level:
+    fi.seamk: INFO
+
+gemini:
+  api:
+    key: "test-key"

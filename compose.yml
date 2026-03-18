@@ -1,0 +1,66 @@
+# Docker Compose for local development
+# Use: docker compose up --build
+
+services:
+  # MariaDB database for development
+  mariadb:
+    image: mariadb:11.2
+    container_name: kodera-db-dev
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_PASSWORD}
+      MARIADB_DATABASE: ${DATABASE_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - kodera-network
+
+  # Spring Boot application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kodera-app-dev
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE}
+      SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/${DATABASE_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GEMINI_MODEL: ${GEMINI_MODEL}
+    ports:
+      - "8080:8080"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - kodera-network
+    restart: unless-stopped
+
+  # Adminer - tietokannan selain selaimessa osoitteessa http://localhost:8081
+  adminer:
+    image: adminer:latest
+    container_name: kodera-adminer
+    ports:
+      - "8081:8080"
+    depends_on:
+      - mariadb
+    networks:
+      - kodera-network
+    restart: unless-stopped
+
+volumes:
+  mariadb_data:
+    driver: local
+
+networks:
+  kodera-network:
+    driver: bridge

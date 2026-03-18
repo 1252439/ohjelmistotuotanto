@@ -1,0 +1,27 @@
+# Development profile - for local development with Docker Desktop
+
+spring:
+  datasource:
+    url: jdbc:mariadb://mariadb:3306/${DATABASE_NAME:assignment_grader}
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: org.mariadb.jdbc.Driver
+  
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+
+server:
+  port: 8080
+
+logging:
+  level:
+    fi.seamk: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+
+gemini:
+  api:
+    model: ${GEMINI_MODEL:gemini-1.5-flash}
+    key: ${GEMINI_API_KEY:}

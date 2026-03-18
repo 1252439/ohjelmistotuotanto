@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kodera - Opettajan arviointijarjestelma</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .tab-button {
+            padding: 12px 30px;
+            border: none;
+            background: #f0f0f0;
+            color: #333;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        
+        .tab-button.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .tab-button:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+        
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        button {
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .assignment-list {
+            margin-top: 20px;
+        }
+        
+        .assignment-card {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .assignment-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .assignment-card p {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .success {
+            background: #64d174;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .error {
+            background: #f83860;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .loading {
+            color: #667eea;
+            font-style: italic;
+        }
+        
+        .grade-result {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        
+        .grade-result h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .grade-points {
+            font-size: 2em;
+            color: #667eea;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+        
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: -9999px;
+        }
+        
+        .file-input-label {
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            display: inline-block;
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Kodera</h1>
+            <p>Tehtävien arvostelujärjestelmä</p>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('teacher')">Opettaja</button>
+            <button class="tab-button" onclick="switchTab('student')">Opiskelija</button>
+            <button class="tab-button" onclick="switchTab('results')">Arvostelut</button>
+        </div>
+        
+        <!-- OPETTAJAN TAB -->
+        <div id="teacher" class="tab-content active">
+            <h2>Luo uusi tehtävä</h2>
+            
+            <div class="form-group">
+                <label for="assignmentTitle">Tehtävän otsikko</label>
+                <input type="text" id="assignmentTitle" placeholder="Esim. Mergesort-algoritmi">
+            </div>
+            
+            <div class="form-group">
+                <label for="assignmentDescription">Tehtävänanto ja vaatimukset</label>
+                <textarea id="assignmentDescription" placeholder="Kirjoita tehtävänanto ja mitä vaatimuksia koodissa pitää olla..."></textarea>
+            </div>
+            
+            <button onclick="createAssignment()">Julkaise tehtävä</button>
+            
+            <div id="assignmentMessage"></div>
+            
+            <div class="assignment-list">
+                <h3>Julkaistut tehtävät</h3>
+                <div id="teacherAssignmentsList"></div>
+            </div>
+        </div>
+        
+        <!-- OPISKELIJAN TAB -->
+        <div id="student" class="tab-content">
+            <h2>Palauta ratkaisu</h2>
+            
+            <div class="form-group">
+                <label for="assignmentSelect">Valitse tehtävä</label>
+                <select id="assignmentSelect" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px;">
+                    <option value="">-- Valitse tehtävä --</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Lataa ZIP-tiedosto (sisältää kaikki tiedostot)</label>
+                <div class="file-input-wrapper">
+                    <input type="file" id="codeFile" accept=".zip">
+                    <label for="codeFile" class="file-input-label">Valitse ZIP-tiedosto</label>
+                </div>
+            </div>
+            
+            <button onclick="submitCode()">Lähetä koodi</button>
+            
+            <div id="submissionMessage"></div>
+        </div>
+        
+        <!-- TULOSTENÄKYMÄ -->
+        <div id="results" class="tab-content">
+            <h2>Arvostelut</h2>
+            
+            <div class="form-group">
+                <label for="submissionSelect">Valitse palautus</label>
+                <select id="submissionSelect" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px;">
+                    <option value="">-- Valitse palautus --</option>
+                </select>
+            </div>
+            
+            <button onclick="fetchGrade()">Hae arvostelu</button>
+            
+            <div id="gradeContainer"></div>
+        </div>
+    </div>
+    
+    <script src="js/app.js"></script>
+</body>
+</html>
